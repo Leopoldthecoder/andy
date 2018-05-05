@@ -13,79 +13,60 @@
     </img-input>
 
     <section v-if="file">
-      <canvas ref="canvas"></canvas>
+      <canvas ref="canvas" class="hidden"></canvas>
+      <img
+        class="output"
+        :src="imageSrc"
+        alt="output"
+        v-show="ready">
+
+      <p v-show="showWeixinTip" class="weixin-tip">
+        轻触图片，在图片放大后<br>长按图片并选择「保存图片」
+      </p>
 
       <em-button @click="configure" type="text">设置</em-button>
       <span>|</span>
       <em-button @click="download" type="text">下载</em-button>
 
-      <a
-        class="hidden"
-        ref="anchor">
-        download
-      </a>
+      <a class="hidden" ref="anchor">download</a>
     </section>
   </div>
 </template>
 
-<style lang="scss">
-  #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 40px;
-
-    canvas {
-      width: 80%;
-      display: block;
-      margin: 20px auto;
-    }
-
-    .img-inputer.picked {
-      height: auto;
-    }
-
-    .img-inputer__preview-box {
-      background-color: transparent;
-      font-size: 0;
-      position: relative;
-    }
-
-    .hidden {
-      display: none;
-    }
-  }
-</style>
-
 <script>
-import { hex2rgb, downloadFile } from './utils'
+import { hex2rgb, getObjectUrl, getBreakpoints } from './utils'
 import colors from './colors'
+
 export default {
   name: 'app',
 
   data () {
     return {
+      ready: false,
       file: null,
       imageData: null,
+      imageSrc: '',
       ctx: null,
       points: [],
       config: {
         gray: true,
-        contrast: 1
-      }
+        invert: false,
+        contrast: 100
+      },
+      showWeixinTip: false
     }
   },
 
   methods: {
     onFilePick (file, fileName) {
       this.fileName = fileName
+      this.showWeixinTip = false
       this.config = {
         gray: true,
-        contrast: 1
+        invert: false,
+        contrast: 100
       }
-      setTimeout(this.draw, 200)
+      setTimeout(this.drawToImage, 200)
     },
 
     grayscale () {
@@ -99,21 +80,32 @@ export default {
       this.ctx.putImageData(this.imageData, 0, 0)
     },
 
-    contrast () {
+    invert () {
       const data = this.imageData.data
-      const ratio = 100
-      const factor = (259 * (ratio + 255)) / (255 * (259 - ratio))
       for (let i = 0; i < data.length; i += 4) {
-        data[i] = factor * (data[i] - 128) + 128
-        data[i + 1] = factor * (data[i + 1] - 128) + 128
-        data[i + 2] = factor * (data[i + 2] - 128) + 128
+        data[i] = 255 - data[i]
+        data[i + 1] = 255 - data[i + 1]
+        data[i + 2] = 255 - data[i + 2]
       }
       this.ctx.putImageData(this.imageData, 0, 0)
     },
 
-    calculate () {
+    contrast (deg) {
+      const data = this.imageData.data
+      const ratio = (deg / 100) + 1
+      const factor = 128 * (1 - ratio)
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = data[i] * ratio + factor
+        data[i + 1] = data[i + 1] * ratio + factor
+        data[i + 2] = data[i + 2] * ratio + factor
+      }
+      this.ctx.putImageData(this.imageData, 0, 0)
+    },
+
+    applyPopArtColors () {
       const data = this.imageData.data
       const canvas = this.$refs.canvas
+      this.points = getBreakpoints(canvas)
       for (let block = 0; block < 4; block++) {
         const newData = []
         for (let i = 0; i < data.length; i += 4) {
@@ -134,14 +126,23 @@ export default {
           this.points[block].y
         )
       }
+      this.imageSrc = getObjectUrl(this.$refs.canvas.toDataURL('image/png'))
+      this.ready = true
     },
 
     download () {
+      const ua = navigator.userAgent.toLowerCase()
+      if (/micromessenger/.test(ua)) {
+        this.showWeixinTip = true
+        return
+      }
       const a = this.$refs.anchor
-      downloadFile(a, this.fileName, this.$refs.canvas.toDataURL('image/png'))
+      a.download = this.fileName
+      a.href = this.imageSrc
+      a.click()
     },
 
-    draw () {
+    drawToImage () {
       const img = document.getElementsByTagName('img')[0]
       const canvas = this.$refs.canvas
       const ratio = img.width / 200
@@ -149,32 +150,22 @@ export default {
       canvas.width = 2 * img.width / ratio
       this.ctx = canvas.getContext('2d')
       this.ctx.drawImage(img, 0, 0, img.width / ratio, img.height / ratio)
-      this.points = [{
-        x: 0,
-        y: 0
-      }, {
-        x: canvas.width / 2,
-        y: 0
-      }, {
-        x: 0,
-        y: canvas.height / 2
-      }, {
-        x: canvas.width / 2,
-        y: canvas.height / 2
-      }]
       this.imageData = this.ctx.getImageData(0, 0, canvas.width / 2, canvas.height / 2)
-      this.process()
+      this.postProcess()
     },
 
-    process () {
-      const { gray, contrast } = this.config
+    postProcess () {
+      const { gray, invert, contrast } = this.config
       if (gray) {
         this.grayscale()
       }
-      for (let i = 0; i < contrast; i++) {
-        this.contrast()
+      if (invert) {
+        this.invert()
       }
-      this.calculate()
+      if (contrast !== 0) {
+        this.contrast(contrast)
+      }
+      this.applyPopArtColors()
     },
 
     configure () {
@@ -193,10 +184,17 @@ export default {
                   on-input={ val => onInput(val, 'gray') }>
                 </em-switch>
               </em-list-item>
+              <em-list-item title="对图片作反色处理">
+                <em-switch
+                  value={this.config.invert}
+                  on-input={ val => onInput(val, 'invert') }>
+                </em-switch>
+              </em-list-item>
               <em-list-item title={`图片对比度：${this.config.contrast}`}>
                 <em-range
-                  min={0}
-                  max={5}
+                  min={-50}
+                  max={200}
+                  step={10}
                   value={this.config.contrast}
                   on-input={ val => onInput(val, 'contrast') }>
                 </em-range>
@@ -207,7 +205,7 @@ export default {
             text: '确定',
             type: 'primary',
             onClick: () => {
-              this.draw()
+              this.drawToImage()
               close()
             }
           }

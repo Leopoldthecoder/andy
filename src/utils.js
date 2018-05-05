@@ -13,11 +13,8 @@ const base64Img2Blob = code => {
   return new Blob([uInt8Array], { type: contentType })
 }
 
-export function downloadFile (anchor, fileName, content) {
-  const blob = base64Img2Blob(content)
-  anchor.download = fileName
-  anchor.href = URL.createObjectURL(blob)
-  anchor.click()
+export function getObjectUrl (content) {
+  return URL.createObjectURL(base64Img2Blob(content))
 }
 
 export function hex2rgb (str) {
@@ -27,4 +24,20 @@ export function hex2rgb (str) {
     g: parseInt(hex.slice(2, 4), 16),
     b: parseInt(hex.slice(4, 6), 16)
   }
+}
+
+export function getBreakpoints ({ height, width }) {
+  return [{
+    x: 0,
+    y: 0
+  }, {
+    x: width / 2,
+    y: 0
+  }, {
+    x: 0,
+    y: height / 2
+  }, {
+    x: width / 2,
+    y: height / 2
+  }]
 }

@@ -9,6 +9,7 @@ import {
   ListItem
 } from 'element-mobile'
 import App from './App.vue'
+import './style/index.scss'
 import './style/element-mobile-override.css'
 
 Vue.config.productionTip = false

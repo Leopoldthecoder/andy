@@ -1,5 +1,12 @@
 {
   "presets": [
     "@vue/app"
-  ]
+  ],
+  "plugins": [[
+    "component", {
+      "libraryName": "element-mobile",
+      "style": true,
+      "libDir": "dist"
+    }
+  ]]
 }

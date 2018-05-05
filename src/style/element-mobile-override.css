@@ -12,6 +12,11 @@
   line-height: 20px;
 }
 
+.em-list-item__title {
+  width: 130px;
+  display: inline-block;
+}
+
 .em-button--text {
   display: inline-block;
   width: auto;

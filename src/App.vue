@@ -194,7 +194,6 @@ export default {
                 <em-range
                   min={-50}
                   max={200}
-                  step={10}
                   value={this.config.contrast}
                   on-input={ val => onInput(val, 'contrast') }>
                 </em-range>

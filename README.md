@@ -18,4 +18,4 @@ This app generates a pop art styled avatar like the one above. Visit https://and
 Your image (both original and generated) will not be uploaded anywhere. Everything runs in the client.
 
 ### Credits
-The idea was originally from @hexwing , and @waynecz helped me sort things out.
+The idea was originally from [@hexwing](https://github.com/hexwing), and [@waynecz](https://github.com/waynecz) helped me sort things out.

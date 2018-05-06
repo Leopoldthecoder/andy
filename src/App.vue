@@ -37,6 +37,8 @@
 import { hex2rgb, getObjectUrl, getBreakpoints } from './utils'
 import colors from './colors'
 
+const IMAGE_WIDTH = 200
+
 export default {
   name: 'app',
 
@@ -121,7 +123,7 @@ export default {
           newData.push(r, g, b, data[i + 3])
         }
         this.ctx.putImageData(
-          new ImageData(new Uint8ClampedArray(newData), canvas.width / 2, canvas.height / 2),
+          new ImageData(new Uint8ClampedArray(newData), IMAGE_WIDTH, canvas.height / 2),
           this.points[block].x,
           this.points[block].y
         )
@@ -145,12 +147,12 @@ export default {
     drawToImage () {
       const img = document.getElementsByTagName('img')[0]
       const canvas = this.$refs.canvas
-      const ratio = img.width / 200
-      canvas.height = 2 * img.height / ratio
-      canvas.width = 2 * img.width / ratio
+      const imageHeight = Math.round(IMAGE_WIDTH * img.height / img.width)
+      canvas.height = 2 * imageHeight
+      canvas.width = 2 * IMAGE_WIDTH
       this.ctx = canvas.getContext('2d')
-      this.ctx.drawImage(img, 0, 0, img.width / ratio, img.height / ratio)
-      this.imageData = this.ctx.getImageData(0, 0, canvas.width / 2, canvas.height / 2)
+      this.ctx.drawImage(img, 0, 0, IMAGE_WIDTH, imageHeight)
+      this.imageData = this.ctx.getImageData(0, 0, IMAGE_WIDTH, imageHeight)
       this.postProcess()
     },
 

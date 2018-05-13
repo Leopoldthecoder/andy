@@ -6,7 +6,9 @@
   <img src="https://user-images.githubusercontent.com/10095631/39661675-3cd3251c-5088-11e8-94db-f3355eb469e7.jpg" width="300" alt="example">
 </p>
 
-This app generates a pop art styled avatar like the one above. Visit https://andy.leopoldthecuber.cn on your mobile phone.
+This app generates a pop art styled avatar like the one above. Visit https://andy.leopoldthecuber.cn (or scan the code below) on your mobile phone.
+
+<img src="https://user-images.githubusercontent.com/10095631/39964384-111bc1e8-56b6-11e8-8848-1321168d5052.png" alt="QRCode" width="150">
 
 ### How to use
 - Pick an image

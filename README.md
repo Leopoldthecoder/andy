@@ -14,7 +14,7 @@ This app generates a pop art styled avatar like the one above. Visit https://and
 - Pick an image
 - A pop art styled avatar is generated
 - Download the avatar
-- Or fine-tune the avatar by configuring some parameters before actually download it
+- Or fine-tune the avatar by configuring some parameters before actually downloading it
 
 ### Security
 Your image (both original and generated) will not be uploaded anywhere. Everything runs in the client.

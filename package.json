@@ -19,7 +19,7 @@
     "@vue/cli-service": "^5.0.8",
     "@vue/eslint-config-standard": "^3.0.0-beta.9",
     "babel-plugin-component": "^1.1.0",
-    "gh-pages": "^2.0.1",
+    "gh-pages": "^5.0.0",
     "vue-template-compiler": "^2.5.13"
   },
   "browserslist": [
